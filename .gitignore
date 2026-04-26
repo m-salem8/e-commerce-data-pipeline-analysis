@@ -11,3 +11,5 @@ airflow.cfg
 airflow.db
 venv/
 include/gcp/*.json
+dbt/logs/*
+dbt/.gitignore
