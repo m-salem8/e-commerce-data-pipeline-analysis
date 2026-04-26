@@ -2,8 +2,10 @@ import os
 import zipfile
 import tempfile
 import requests
+
 from dotenv import load_dotenv
 from google.cloud import storage
+
 
 load_dotenv()
 
@@ -12,18 +14,22 @@ BUCKET_NAME = os.getenv("GCS_BUCKET")
 PROJECT_ID = os.getenv("PROJECT_ID")
 GCS_PREFIX = "raw"
 
+SERVICE_ACCOUNT_PATH = "/usr/local/airflow/include/gcp/airflow-sa.json"
+
 
 def validate_env():
-    required = {
+    required_env_vars = {
         "DATASET_URL": URL,
         "GCS_BUCKET": BUCKET_NAME,
         "PROJECT_ID": PROJECT_ID,
     }
 
-    missing = [key for key, value in required.items() if not value]
+    missing_vars = [
+        name for name, value in required_env_vars.items() if not value
+    ]
 
-    if missing:
-        raise ValueError(f"Missing environment variables: {missing}")
+    if missing_vars:
+        raise ValueError(f"Missing environment variables: {missing_vars}")
 
 
 def download_zip(url: str, zip_path: str):
@@ -49,24 +55,36 @@ def extract_zip(zip_path: str, extract_dir: str):
     print("Extraction complete.")
 
 
+def get_storage_client():
+    if os.path.exists(SERVICE_ACCOUNT_PATH):
+        return storage.Client.from_service_account_json(
+            SERVICE_ACCOUNT_PATH,
+            project=PROJECT_ID,
+        )
+
+    return storage.Client(project=PROJECT_ID)
+
+
 def upload_csv_files_to_gcs(local_dir: str):
     print("Uploading CSV files to GCS...")
 
-    client = storage.Client(project=PROJECT_ID)
+    client = get_storage_client()
     bucket = client.bucket(BUCKET_NAME)
 
     uploaded_count = 0
 
     for file_name in os.listdir(local_dir):
-        if file_name.endswith(".csv"):
-            local_path = os.path.join(local_dir, file_name)
-            gcs_path = f"{GCS_PREFIX}/{file_name}"
+        if not file_name.endswith(".csv"):
+            continue
 
-            blob = bucket.blob(gcs_path)
-            blob.upload_from_filename(local_path)
+        local_path = os.path.join(local_dir, file_name)
+        gcs_path = f"{GCS_PREFIX}/{file_name}"
 
-            print(f"Uploaded: gs://{BUCKET_NAME}/{gcs_path}")
-            uploaded_count += 1
+        blob = bucket.blob(gcs_path)
+        blob.upload_from_filename(local_path)
+
+        print(f"Uploaded: gs://{BUCKET_NAME}/{gcs_path}")
+        uploaded_count += 1
 
     print(f"Upload complete. Total files uploaded: {uploaded_count}")
 
