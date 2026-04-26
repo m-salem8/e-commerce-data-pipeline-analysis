@@ -1,0 +1,33 @@
+version: 2
+
+sources:
+  - name: olist_raw
+    database: olist-494419
+    schema: olist_raw
+    tables:
+      - name: customers
+        description: Raw customers data
+
+      - name: orders
+        description: Raw orders data
+
+      - name: order_items
+        description: Raw order items data
+
+      - name: order_payments
+        description: Raw order payments data
+
+      - name: order_reviews
+        description: Raw order reviews data
+
+      - name: products
+        description: Raw products data
+
+      - name: sellers
+        description: Raw sellers data
+
+      - name: geolocation
+        description: Raw geolocation data
+
+      - name: product_category_translation
+        description: Product category translation mapping
