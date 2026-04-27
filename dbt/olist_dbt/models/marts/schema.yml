@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: dim_sellers
+    description: Seller dimension table
+
+    columns:
+      - name: seller_id
+        description: Unique seller identifier
+        tests:
+          - not_null
+          - unique
+
+  - name: fct_sales
+    description: Sales fact table at order item level
+
+    columns:
+      - name: order_id
+        description: Order identifier
+
+      - name: total_item_value
+        description: price + freight_value
