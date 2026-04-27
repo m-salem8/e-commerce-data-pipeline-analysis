@@ -1,5 +1,6 @@
 apache-airflow-providers-google
+astronomer-cosmos
 dbt-bigquery
-requests
 google-cloud-storage
+requests
 python-dotenv

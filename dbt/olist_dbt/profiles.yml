@@ -1,0 +1,12 @@
+olist_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: olist-494419
+      dataset: olist
+      keyfile: /usr/local/airflow/include/gcp/airflow-sa.json
+      threads: 2
+      timeout_seconds: 300
+      location: EU

@@ -1,13 +1,21 @@
 from datetime import datetime
+
 from airflow.decorators import dag
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
+
+from cosmos import DbtTaskGroup
+from cosmos.config import ProjectConfig, ProfileConfig, ExecutionConfig
+
 from include.scripts.data_ingestion_to_gcs import main
 
 
 PROJECT_ID = "olist-494419"
 BUCKET_NAME = "ecommerce-olist_de"
 BQ_DATASET = "olist_raw"
+
+DBT_PROJECT_PATH = "/usr/local/airflow/dbt/olist_dbt"
+DBT_EXECUTABLE_PATH = "/usr/local/airflow/.local/bin/dbt"
 
 FILES_TO_TABLES = {
     "raw/olist_customers_dataset.csv": "customers",
@@ -18,25 +26,23 @@ FILES_TO_TABLES = {
     "raw/olist_orders_dataset.csv": "orders",
     "raw/olist_products_dataset.csv": "products",
     "raw/olist_sellers_dataset.csv": "sellers",
-    "raw/product_category_name_translation.csv": "product_category_translation",
 }
 
 
 @dag(
-    dag_id="load_olist_gcs_to_bigquery",
+    dag_id="olist_full_pipeline",
     start_date=datetime(2024, 1, 1),
-    schedule=None,
+    schedule="@monthly",
     catchup=False,
+    tags=["olist", "gcs", "bigquery", "dbt", "cosmos"],
 )
-def load_olist_gcs_to_bigquery():
+def olist_full_pipeline():
 
-    # Step 1: upload data to GCS (runs once)
-    ingestion_task = PythonOperator(
+    upload_to_gcs = PythonOperator(
         task_id="upload_to_gcs",
         python_callable=main,
     )
 
-    # Step 2: create all load tasks
     load_tasks = []
 
     for gcs_file, table_name in FILES_TO_TABLES.items():
@@ -55,8 +61,22 @@ def load_olist_gcs_to_bigquery():
 
         load_tasks.append(load_task)
 
-    # Step 3: set dependency (runs once → then all loads)
-    ingestion_task >> load_tasks
+    dbt_models = DbtTaskGroup(
+        group_id="dbt_models",
+        project_config=ProjectConfig(
+            dbt_project_path=DBT_PROJECT_PATH,
+        ),
+        profile_config=ProfileConfig(
+            profile_name="olist_dbt",
+            target_name="dev",
+            profiles_yml_filepath=f"{DBT_PROJECT_PATH}/profiles.yml",
+        ),
+        execution_config=ExecutionConfig(
+            dbt_executable_path=DBT_EXECUTABLE_PATH,
+        ),
+    )
+
+    upload_to_gcs >> load_tasks >> dbt_models
 
 
-load_olist_gcs_to_bigquery()
+olist_full_pipeline()
