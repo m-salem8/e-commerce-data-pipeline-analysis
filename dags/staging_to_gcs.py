@@ -56,7 +56,7 @@ def olist_full_pipeline():
             autodetect=True,
             write_disposition="WRITE_TRUNCATE",
             create_disposition="CREATE_IF_NEEDED",
-            gcp_conn_id="google_cloud_default",
+            gcp_conn_id="google_cloud_default", # env
         )
 
         load_tasks.append(load_task)
