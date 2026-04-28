@@ -1,175 +1,124 @@
-# 🛒 E-Commerce Data Engineering Pipeline
+# E-Commerce Data Engineering Pipeline
 
-## 🚀 Overview
+## Overview
 
-This project implements a **production-like end-to-end data pipeline** using modern data engineering tools:
+A production-like end-to-end data pipeline built with modern data engineering tools.
 
+```
 Python → GCS (Data Lake) → BigQuery (Warehouse) → dbt (Transformation) → Airflow (Orchestration)
+```
 
 ---
 
-## 🧠 Architecture
-
-### 🔷 Pipeline Flow
-Python (Ingestion)
-↓
-GCS (Data Lake)
-↓
-BigQuery (Raw Layer)
-↓
-dbt (Staging → Marts)
-↓
-Analytics-ready tables
-
-
----
-
-## ⚙️ Tech Stack
+## Tech Stack
 
 | Layer | Tool | Role |
-|------|------|------|
+|---|---|---|
 | Ingestion | Python | Download & upload data |
 | Data Lake | Google Cloud Storage (GCS) | Raw storage |
 | Warehouse | BigQuery | Scalable compute |
 | Transformation | dbt | SQL modeling |
 | Orchestration | Airflow (Astro) | Scheduling |
-| Integration | Cosmos | dbt + Airflow |
+| Integration | Cosmos | dbt + Airflow bridge |
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 
-
+```
 e-commerce/
-│
-├── dags/ # Airflow DAGs
-│ └── olist_full_pipeline.py
-│
+├── dags/
+│   └── olist_full_pipeline.py       # Airflow DAG
 ├── include/
-│ ├── scripts/ # Python ingestion scripts
-│ └── gcp/
-│ └── airflow-sa.json # Service account key
-│
+│   ├── scripts/                     # Python ingestion scripts
+│   └── gcp/
+│       └── airflow-sa.json          # Service account key
 ├── dbt/
-│ └── olist_dbt/
-│ ├── models/
-│ │ ├── staging/ # Cleaned data
-│ │ └── marts/ # Fact & dimension tables
-│ ├── dbt_project.yml
-│ └── profiles.yml # Used inside Airflow
-│
+│   └── olist_dbt/
+│       ├── models/
+│       │   ├── staging/             # Cleaned raw data
+│       │   └── marts/               # Fact & dimension tables
+│       ├── dbt_project.yml
+│       └── profiles.yml             # Used inside Airflow
 ├── requirements.txt
 └── README.md
-
+```
 
 ---
 
-## ☁️ Cloud Architecture
-
-### 🪣 GCS (Data Lake)
+## Cloud Architecture
+![alt text](image.png)
+### GCS — Data Lake
 
 - Stores raw CSV files
-- Landing zone before BigQuery
+- Landing zone before BigQuery ingestion
 
-### 🧱 BigQuery (Warehouse)
+### BigQuery — Warehouse
 
-Datasets:
-
-
-olist_raw → raw ingestion
-olist_stage → staging layer
-olist_marts → analytics layer
-
+```
+olist_raw     → raw ingestion layer
+olist_stage   → staging layer
+olist_marts   → analytics-ready layer
+```
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
-### Service Account Key
+Service account key location:
 
-
+```
 include/gcp/airflow-sa.json
+```
 
+Used for: GCS access, BigQuery access, dbt execution, and Airflow tasks.
 
-Used for:
-- GCS access
-- BigQuery access
-- dbt execution
-- Airflow tasks
-
----
-
-## ⚠️ Important Concept
-
-Local path ≠ Docker path
+> **Note:** Local path ≠ Docker container path.
 
 | Environment | Path |
-|------------|------|
+|---|---|
 | Local | `/home/.../airflow-sa.json` |
 | Container | `/usr/local/airflow/include/gcp/airflow-sa.json` |
 
 ---
 
-## 🐳 Airflow (Astro)
+## How to Run
 
-Run:
+**Start Astro (Airflow):**
 
-
+```bash
 astro dev start
+```
 
+This starts the Scheduler, Webserver, Worker, and Metadata DB. The project mounts inside the container at `/usr/local/airflow/`.
 
-This starts:
-- Scheduler
-- Webserver
-- Worker
-- Metadata DB
+**Trigger the DAG:**
 
-Project is mounted inside container at:
-
-
-/usr/local/airflow/
-
+```
+olist_full_pipeline
+```
 
 ---
 
-## 🔄 Pipeline Orchestration
+## Pipeline Orchestration
 
-### DAG Flow
+DAG execution order:
 
-
+```
 upload_to_gcs
-↓
+      ↓
 load_* (BigQuery)
-↓
+      ↓
 dbt_models (Cosmos)
-
-
+```
+![alt text](<Screenshot from 2026-04-28 21-26-00.png>)
 ---
 
-## 🌌 dbt + Cosmos
+## dbt + Cosmos Integration
 
-### Why Cosmos?
+Cosmos converts each dbt model into an individual Airflow task, instead of running everything as a single `dbt run` task.
 
-Instead of:
-
-
-1 task → dbt run
-
-
-You get:
-
-
-stg_orders
-dim_customers
-fct_sales
-fct_orders
-
-
-Each model becomes a task in Airflow.
-
----
-
-### Configuration Example
+**Configuration example:**
 
 ```python
 DbtTaskGroup(
@@ -186,87 +135,66 @@ DbtTaskGroup(
         dbt_executable_path=DBT_EXECUTABLE_PATH,
     ),
 )
-📊 Transformation Layer
-Staging models clean raw data
-Dimension tables provide context
-Fact tables store metrics
+```
 
-Flow:
+---
 
+## Transformation Layer
+
+```
 staging → dimensions → facts
-⭐ Data Modeling
-Fact Table
+```
 
-fct_sales
+- **Staging models** — clean and normalize raw data
+- **Dimension tables** — provide descriptive context
+- **Fact tables** — store measurable metrics
 
-item-level transactions
-price, freight, total
-Dimensions
-dim_customers
-dim_products
-dim_sellers
-dim_date
-🧠 Why Star Schema?
-reduces redundancy
-improves performance
-scalable
-industry standard
-🧪 Data Quality
+---
 
-Using dbt tests:
+## Data Modeling — Star Schema
 
-not_null
-unique
-relationships
+**Fact table:**
 
-Advanced:
+- `fct_sales` — item-level transactions (price, freight, total)
+- `fct_orders` — order-level aggregations
 
-store_failures
-rejected data tracking
-⚙️ Runtime Behavior
-Airflow (container)
-   ↓
-runs Python + dbt
-   ↓
-calls GCP APIs
-   ↓
-BigQuery executes SQL
-🧠 Mental Model
-Airflow = orchestrator
-dbt = transformation layer
-BigQuery = compute engine
-GCS = storage
-Service account = authentication
-⚠️ Common Pitfalls
-wrong key path
-mixing local vs container config
-dbt profiles confusion
-dependency conflicts
-🚀 How to Run
+**Dimension tables:**
 
-Start Astro:
+- `dim_customers`
+- `dim_products`
+- `dim_sellers`
+- `dim_date`
 
-astro dev start
+Star schema reduces redundancy, improves query performance, and is the industry standard for analytics warehouses.
 
-Trigger DAG:
+---
 
-olist_full_pipeline
-🔥 Key Achievements
-end-to-end pipeline
-cloud integration
-orchestration
-star schema modeling
-real-world debugging
-📈 Future Improvements
-incremental models
-partitioning & clustering
-CI/CD
-monitoring
-data quality dashboards
-👨‍💻 Author
+## Data Quality
 
-Salem — Data Engineering Project
+dbt tests applied across models:
 
-🧠 Final Insight
+- `not_null`
+- `unique`
+- `relationships`
+- `store_failures` — tracks rejected rows for audit
 
-Most failures in data engineering are caused
+---
+
+## Mental Model
+
+| Component | Role |
+|---|---|
+| Airflow | Orchestrator — schedules and triggers tasks |
+| dbt | Transformation layer — SQL modeling |
+| BigQuery | Compute engine — executes SQL at scale |
+| GCS | Storage — raw file landing zone |
+| Service Account | Authentication — GCP access credentials |
+
+---
+
+## Common Pitfalls
+
+- Wrong service account key path (local vs. container)
+- Mixing local and container config values
+- dbt `profiles.yml` pointing to wrong target
+- Python dependency conflicts in the Astro environment
