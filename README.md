@@ -26,6 +26,7 @@ Python → GCS (Data Lake) → BigQuery (Warehouse) → dbt (Transformation) →
 | Transformation | dbt | SQL modeling |
 | Orchestration | Airflow (Astro) | Scheduling |
 | Integration | Cosmos | dbt + Airflow bridge |
+| Visualization | powerBI | analytics of marts |
 
 ---
 
