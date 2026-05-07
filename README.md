@@ -2,7 +2,13 @@
 
 ## Overview
 
-A production-like end-to-end data pipeline built with modern data engineering tools. 
+## 🚀 Overview
+
+This project implements a **production-style modern data platform** for e-commerce analytics using Google Cloud Platform, dbt, Airflow, and BigQuery.
+
+The pipeline ingests raw transactional data, stores it in a cloud-based data lake, transforms it into analytics-ready models using dbt, and orchestrates the full workflow using Apache Airflow (Astro).
+
+The final warehouse is modeled using a **Star Schema** and visualized in Power BI for business analysis and reporting. 
 
 ```
 Python → GCS (Data Lake) → BigQuery (Warehouse) → dbt (Transformation) → Airflow (Orchestration) → Power BI (Visulaization & Analysis)
@@ -47,6 +53,16 @@ e-commerce/
 ---
 
 ## Cloud Architecture
+## 🏗️ Architecture
+
+The project follows a layered modern data engineering architecture:
+
+1. **Python ingestion layer** downloads and uploads raw datasets
+2. **Google Cloud Storage (GCS)** acts as the raw data lake
+3. **BigQuery** serves as the scalable cloud warehouse
+4. **dbt** transforms raw tables into staging and analytics models
+5. **Airflow (Astro)** orchestrates and schedules the entire pipeline
+6. **Power BI** consumes the final marts layer for reporting and insights
 ![alt text](image.png)
 ### GCS — Data Lake
 
@@ -62,10 +78,26 @@ olist_marts   → analytics-ready layer
 ```
 
 ---
+## 📈 Key Results
 
-## Authentication
+- Built a fully orchestrated end-to-end cloud pipeline
+- Implemented layered warehouse architecture (`raw → staging → marts`)
+- Modeled analytics tables using a Star Schema
+- Integrated dbt with Airflow using Cosmos
+- Automated ingestion, transformation, and orchestration workflows
+- Separated local and containerized execution environments
+- Implemented data quality checks using dbt tests
+- Created analytics-ready datasets for Power BI dashboards
+
+---
+## 🔐 Authentication & Environment Configuration
+
+The project uses a Google Cloud **Service Account** to authenticate Airflow and dbt with GCP services.
 
 Service account key location:
+
+```text
+include/gcp/airflow-sa.json
 
 ```
 include/gcp/airflow-sa.json
@@ -82,13 +114,14 @@ Used for: GCS access, BigQuery access, dbt execution, and Airflow tasks.
 
 ---
 
-## How to Run
 
-**Start Astro (Airflow):**
+# ▶️ How to Run
+
+## 1. Clone Repository
 
 ```bash
-astro dev start
-```
+git clone <your-repo-url>
+cd e-commerce
 
 This starts the Scheduler, Webserver, Worker, and Metadata DB. The project mounts inside the container at `/usr/local/airflow/`.
 
@@ -139,11 +172,12 @@ DbtTaskGroup(
 
 ---
 
-## Transformation Layer
+## 🔄 Transformation Layer (dbt)
 
-```
-staging → dimensions → facts
-```
+The transformation layer follows a modular dbt architecture:
+
+```text
+raw → staging → dimensions/facts → analytics
 
 - **Staging models** — clean and normalize raw data
 - **Dimension tables** — provide descriptive context
@@ -170,6 +204,16 @@ Star schema reduces redundancy, improves query performance, and is the industry 
 ---
 
 ## Data Visualization & Analysis
+The final marts layer is consumed in Power BI for:
+
+- Revenue analysis
+- Order trends
+- Customer insights
+- Product performance
+- Seller analysis
+
+The warehouse was intentionally modeled to support BI tools efficiently using dimensional modeling principles.
+
 ![alt text](./images/powerBI.png)
 
 ## Data Quality
