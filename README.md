@@ -2,10 +2,10 @@
 
 ## Overview
 
-A production-like end-to-end data pipeline built with modern data engineering tools.
+A production-like end-to-end data pipeline built with modern data engineering tools. 
 
 ```
-Python → GCS (Data Lake) → BigQuery (Warehouse) → dbt (Transformation) → Airflow (Orchestration)
+Python → GCS (Data Lake) → BigQuery (Warehouse) → dbt (Transformation) → Airflow (Orchestration) → Power BI (Visulaization & Analysis)
 ```
 
 ---
@@ -168,6 +168,9 @@ staging → dimensions → facts
 Star schema reduces redundancy, improves query performance, and is the industry standard for analytics warehouses.
 
 ---
+
+## Data Visualization & Analysis
+![alt text](b5b76ff5-cb1a-4c13-b9bd-4b3e7d29951b.png)
 
 ## Data Quality
 
