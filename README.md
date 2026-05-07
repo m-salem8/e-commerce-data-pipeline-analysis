@@ -53,7 +53,6 @@ e-commerce/
 
 ---
 
-## Cloud Architecture
 ## 🏗️ Architecture
 
 The project follows a layered modern data engineering architecture:
@@ -64,9 +63,10 @@ The project follows a layered modern data engineering architecture:
 4. **dbt** transforms raw tables into staging and analytics models
 5. **Airflow (Astro)** orchestrates and schedules the entire pipeline
 6. **Power BI** consumes the final marts layer for reporting and insights
-![alt text](image.png)
-### GCS — Data Lake
+![alt text](images/arch_diagram.png)
 
+### GCS — Data Lake
+- Ingestion layer
 - Stores raw CSV files
 - Landing zone before BigQuery ingestion
 
@@ -74,8 +74,26 @@ The project follows a layered modern data engineering architecture:
 
 ```
 olist_raw     → raw ingestion layer
-olist_stage   → staging layer
+olist_stage   → staging layer for basic transformations
 olist_marts   → analytics-ready layer
+```
+
+### dbt — Transformation Layer
+
+```
+olist_dbt     → dbt models
+```
+
+### Airflow (Astro) — Orchestration Layer
+
+```
+olist_full_pipeline.py    → Airflow DAG
+```
+
+### Power BI — Visualization Layer
+
+```
+olist_marts   → Power BI dashboards
 ```
 
 ---
@@ -90,6 +108,9 @@ olist_marts   → analytics-ready layer
 - Implemented data quality checks using dbt tests
 - Created analytics-ready datasets for Power BI dashboards
 
+![alt text](images/powerBI.png)
+
+
 ---
 ## 🔐 Authentication & Environment Configuration
 
@@ -100,8 +121,6 @@ Service account key location:
 ```text
 include/gcp/airflow-sa.json
 
-```
-include/gcp/airflow-sa.json
 ```
 
 Used for: GCS access, BigQuery access, dbt execution, and Airflow tasks.
@@ -119,11 +138,16 @@ Used for: GCS access, BigQuery access, dbt execution, and Airflow tasks.
 # ▶️ How to Run
 
 ## 1. Clone Repository
-
+After you create a new repository, clone it locally and navigate to the project directory. you can run the project locally or on the cloud, therefore you need to reconfigure the project.yml file or profiles.yml file. 
 ```bash
 git clone <your-repo-url>
 cd e-commerce
 
+```
+## 2. Run Airflow Locally
+```bash
+astro dev start
+```
 This starts the Scheduler, Webserver, Worker, and Metadata DB. The project mounts inside the container at `/usr/local/airflow/`.
 
 **Trigger the DAG:**
