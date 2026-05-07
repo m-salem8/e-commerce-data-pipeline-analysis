@@ -170,7 +170,7 @@ Star schema reduces redundancy, improves query performance, and is the industry 
 ---
 
 ## Data Visualization & Analysis
-![Power BI Sales Report dashboard displaying key metrics: 15.84M total sales, 2.25M transportation costs, and 13.59M profit. Left sidebar contains filter options for seller city, customer city, payment types, order status, and order category. Center section shows Total Sales by Month line chart spanning January through December with peak of 1.7M in June. Bottom left displays a performance table with customer states (AC, AL, AM, etc.) color-coded by performance level (good in green, average in yellow, poor in red). Right section shows Total Sales by Product Category bar chart with beleza_saude leading at 1.44M followed by relogios_presentes at 1.31M. The dashboard uses a professional blue header with white text and organized grid layout for data presentation.](b5b76ff5-cb1a-4c13-b9bd-4b3e7d29951b.png)
+![alt text](pwoerBI.png)
 
 ## Data Quality
 
