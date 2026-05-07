@@ -170,7 +170,7 @@ Star schema reduces redundancy, improves query performance, and is the industry 
 ---
 
 ## Data Visualization & Analysis
-![alt text](images/pwoerBI.png)
+![alt text](./images/powerBI.png)
 
 ## Data Quality
 
