@@ -13,3 +13,7 @@ venv/
 include/gcp/*.json
 dbt/logs/*
 dbt/.gitignore
+.contine/
+.contine/*
+dbt/target/
+dbt/.dbt/
